@@ -1,22 +1,20 @@
-class Coin extends Phaser.Physics.Arcade.Sprite{
+class Blue extends Phaser.Physics.Arcade.Sprite{
     constructor( scene, velocity) {
-        super(scene, game.config.width + 32, Phaser.Math.Between(16, game.config.height - 16), 'coin');
+        super(scene, game.config.width + 32, Phaser.Math.Between(16, game.config.height - 16), 'blueBag');
         scene.add.existing(this);
         scene.physics.add.existing(this);
         this.setVelocityX(velocity);
         this.setImmovable();
-        this.newCoin = true;
-        //this.points = pointValue;
-        //this.moveSpeed = game.settings.garbageSpeed;
+        this.newBlue = true;
     }
 
     update()
     {
         //spawn new coin when current one reaches middle of map
-        if(this.newCoin && this.x < game.config.width/2)
+        if(this.newBlue && this.x < game.config.width/2)
         {
-            this.newCoin = false;
-            this.scene.addCoin(this.parent, this.velocity);
+            this.newBlue = false;
+            this.scene.addBlue(this.parent, this.velocity);
         }
 
         //destory coin when it goes off screen

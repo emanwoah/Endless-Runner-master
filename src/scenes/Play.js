@@ -7,10 +7,11 @@ class Play extends Phaser.Scene {
         //preload assets for the game here
         this.load.image('bag','./assets/pinkplastic.png');
         this.load.image('background','./assets/city.png');
+        this.load.image('end','./assets/gameOver.png');
         this.load.image('moon', './assets/moon.png');
         this.load.image('street', './assets/street.png');
         this.load.image('garbage', './assets/trashcan.png');
-        this.load.image('coin', './assets/blueplastic.png');
+        this.load.image('blueBag', './assets/blueplastic.png');
     }
     
     create(){
@@ -38,6 +39,7 @@ class Play extends Phaser.Scene {
 
 
         //set up keys for player input
+        keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
         keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
         keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
@@ -49,7 +51,7 @@ class Play extends Phaser.Scene {
             runChildUpdate: true
         });
 
-        this.coinGroup = this.add.group({
+        this.blueGroup = this.add.group({
             runChildUpdate: true
         });
 
@@ -60,7 +62,7 @@ class Play extends Phaser.Scene {
         
 
         this.time.delayedCall(2000, () => {
-            this.addCoin();
+            this.addBlue();
         });
 
         this.score = 0;
@@ -78,12 +80,12 @@ class Play extends Phaser.Scene {
         this.trashGroup.add(trash);
     }
     
-    //add coin to group
-    addCoin()
+    //add BlueBag
+    addBlue()
     {
         let tilt = Phaser.Math.Between(0, 50);
-        let coin = new Coin(this, this.garbageSpeed - tilt);
-        this.coinGroup.add(coin);
+        let coin = new Blue(this, this.garbageSpeed - tilt);
+        this.blueGroup.add(coin);
     }
 
     update(){
@@ -116,14 +118,18 @@ class Play extends Phaser.Scene {
             this.physics.world.collide(bag, this.trashGroup, this.trashCollision, null, this);
 
             //checks if bag overlaps with coin
-            this.physics.world.overlap(bag, this.coinGroup, this.coinCollide, null, this);
+            this.physics.world.overlap(bag, this.blueGroup, this.blueCollide, null, this);
         }
 
+            if(Phaser.Input.Keyboard.JustDown(keyR)){
+                this.game.sound.stopAll();
+                this.scene.restart();
+            }
 
     }
     //adds points to score on collision with coin
     // destory coin on collide
-    coinCollide()
+    blueCollide()
     {
         this.sound.play('paper');
         this.score += 10;
@@ -132,7 +138,7 @@ class Play extends Phaser.Scene {
         //help from TA to destory instance of coin on collision
         var minDis = 100000;
         var temp = null;
-        this.coinGroup.getChildren().forEach(function(coin){
+        this.blueGroup.getChildren().forEach(function(coin){
             var dis = Math.sqrt(Math.pow(coin.x-bag.x,2) + Math.pow(coin.y - bag.y,2));
             if(dis < minDis){
                 temp = coin;
@@ -145,6 +151,7 @@ class Play extends Phaser.Scene {
     //when bag collides with trash
     trashCollision()
     {
+        this.gameOver = this.add.tileSprite(0,0,640,480,'end').setOrigin(0,0);
         this.sound.play('trashcan');
         bag.destroyed = true;
         bag.destroy();
